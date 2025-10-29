@@ -99,10 +99,7 @@ function App() {
                 setSelectedPlanet={setSelectedPlanet}
               />
               <OrbitRing distance={planet.distance} />
-              <CameraController
-                target={selectedPlanet}
-                controlsRef={controlsRef}
-              />
+              <CameraController target={selectedPlanet} />
             </>
           ))}
         </Canvas>
@@ -128,31 +125,17 @@ function App() {
   );
 }
 
-function ease(current, target, factor = 0.1) {
-  return current + (target - current) * factor;
-}
-
-function CameraController({ target, controlsRef }) {
+function CameraController({ target }) {
   const { camera } = useThree();
+  const ref = useRef();
 
   useFrame(() => {
-    const destination = target
-      ? target.clone().add(new THREE.Vector3(0, 2, 5))
-      : new THREE.Vector3(0, 0, 20);
-
-    camera.position.set(
-      ease(camera.position.x, destination.x),
-      ease(camera.position.y, destination.y),
-      ease(camera.position.z, destination.z)
-    );
-
-    // Instead of camera.lookAt, update OrbitControls target
-    if (controlsRef.current) {
-      controlsRef.current.target.lerp(
-        target || new THREE.Vector3(0, 0, 0),
-        0.1
+    if (target) {
+      camera.position.lerp(
+        target.clone().add(new THREE.Vector3(0, 2, 5)),
+        0.05
       );
-      controlsRef.current.update();
+      camera.lookAt(target);
     }
   });
 
