@@ -5,6 +5,7 @@ import OrbitRing from "./components/OrbitRing";
 import { OrbitControls, Stars } from "@react-three/drei";
 import * as THREE from "three";
 import { useRef, useState } from "react";
+import Sun from "./components/Sun";
 
 function App() {
   const planets = [
@@ -85,7 +86,7 @@ function App() {
   return (
     <>
       <div className="hero">
-        <Canvas camera={{ position: [0, 0, 20], fov: 60 }}>
+        <Canvas camera={{ position: [0, 0, 50], fov: 60 }}>
           <ambientLight intensity={0.5} />
           <pointLight position={[0, 0, 0]} intensity={2} />
           <Stars />
@@ -93,12 +94,22 @@ function App() {
           {/* Sun and planets will go here */}
           {planets.map((planet, index) => (
             <>
-              <Planet
-                key={index}
-                {...planet}
-                setSelectedPlanet={setSelectedPlanet}
-              />
-              <OrbitRing distance={planet.distance} />
+              {planet.name === "Sun" ? (
+                <Sun
+                  key={index}
+                  textureUrl={planet.textureUrl}
+                  radius={planet.radius}
+                />
+              ) : (
+                <>
+                  <Planet
+                    key={index}
+                    {...planet}
+                    setSelectedPlanet={setSelectedPlanet}
+                  />
+                  <OrbitRing distance={planet.distance} />
+                </>
+              )}
               <CameraController target={selectedPlanet} />
             </>
           ))}
@@ -116,7 +127,11 @@ function App() {
             background: "red",
             padding: "4px 6px",
           }}
-          onClick={() => setSelectedPlanet(null)}
+          onClick={() => {
+            const audio = new Audio("/sounds/zoom-sound.mp3");
+            audio.play();
+            setSelectedPlanet(null);
+          }}
         >
           Reset View
         </button>
@@ -128,7 +143,6 @@ function App() {
 function CameraController({ target }) {
   const { camera } = useThree();
   const ref = useRef();
-
   useFrame(() => {
     if (target) {
       camera.position.lerp(
@@ -138,7 +152,6 @@ function CameraController({ target }) {
       camera.lookAt(target);
     }
   });
-
   return null;
 }
 

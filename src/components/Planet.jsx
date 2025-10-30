@@ -18,7 +18,7 @@ export default function Planet({
   }, []);
 
   const ref = useRef();
-  const audio = new Audio("/sounds/planet-sound.mp3");
+  const audio = new Audio("/sounds/zoom-sound.mp3");
 
   const [hovered, setHovered] = useState(false);
   const texture = useLoader(TextureLoader, textureUrl);
