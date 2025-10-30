@@ -10,6 +10,9 @@ export default function Planet({
   distance,
   speed,
   name,
+  mass,
+  orbitPeriod,
+  wiki,
   setSelectedPlanet,
 }) {
   useEffect(() => {
@@ -35,7 +38,17 @@ export default function Planet({
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
       onClick={() => {
-        setSelectedPlanet(ref.current.position.clone());
+        setSelectedPlanet({
+          name,
+          radius,
+          distance,
+          textureUrl,
+          mass,
+          orbitPeriod,
+          wiki,
+          position: ref.current.position.clone(),
+        });
+
         audio.play();
       }}
     >
