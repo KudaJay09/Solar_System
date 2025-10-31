@@ -8,7 +8,6 @@ import { useRef, useState } from "react";
 import Sun from "./components/Sun";
 import MiniMap from "./components/MiniMap";
 import StarBackground from "./components/StarBackground";
-import GalaxyCore from "./components/GalaxyCore";
 
 function App() {
   const planets = [
