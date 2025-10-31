@@ -7,6 +7,8 @@ import * as THREE from "three";
 import { useRef, useState } from "react";
 import Sun from "./components/Sun";
 import MiniMap from "./components/MiniMap";
+import StarBackground from "./components/StarBackground";
+import GalaxyCore from "./components/GalaxyCore";
 
 function App() {
   const planets = [
@@ -117,9 +119,10 @@ function App() {
         <Canvas camera={{ position: [0, 0, 50], fov: 60 }}>
           <ambientLight intensity={0.5} />
           <pointLight position={[0, 0, 0]} intensity={2} />
-          <Stars />
-
+          {/* <Stars /> */}
+          <StarBackground />
           <OrbitControls ref={controlsRef} />
+          <GalaxyCore position={[0, 0, -10]} scale={40} />
           {/* Sun and planets will go here */}
           {planets.map((planet, index) => (
             <>
@@ -196,12 +199,6 @@ function App() {
             >
               🔗 More Info
             </a>
-
-            <p>
-              <strong>Texture:</strong>{" "}
-              {selectedPlanet.textureUrl.split("/").pop()}
-            </p>
-            {/* Add more facts later */}
           </div>
 
           <button
