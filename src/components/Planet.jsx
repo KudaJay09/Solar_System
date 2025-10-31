@@ -13,6 +13,7 @@ export default function Planet({
   mass,
   orbitPeriod,
   wiki,
+  ref,
   setSelectedPlanet,
 }) {
   useEffect(() => {
@@ -20,7 +21,7 @@ export default function Planet({
     audio.load();
   }, []);
 
-  const ref = useRef();
+  const PlanetRef = useRef();
   const audio = new Audio("/sounds/zoom-sound.mp3");
 
   const [hovered, setHovered] = useState(false);
@@ -28,13 +29,13 @@ export default function Planet({
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime() * speed;
-    ref.current.position.x = Math.sin(t) * distance;
-    ref.current.position.z = Math.cos(t) * distance;
+    PlanetRef.current.position.x = Math.sin(t) * distance;
+    PlanetRef.current.position.z = Math.cos(t) * distance;
   });
 
   return (
     <mesh
-      ref={ref}
+      ref={PlanetRef}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
       onClick={() => {
@@ -46,7 +47,8 @@ export default function Planet({
           mass,
           orbitPeriod,
           wiki,
-          position: ref.current.position.clone(),
+          ref: PlanetRef,
+          position: PlanetRef.current.position.clone(),
         });
 
         audio.play();

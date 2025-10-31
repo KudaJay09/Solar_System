@@ -2,11 +2,15 @@ import { useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 
-export default function GalaxyCore({ position = [0, 0, -10], scale = 40 }) {
+export default function GalaxyCore({
+  position = [0, 0, -10],
+  scale = 40,
+  visible = false,
+}) {
   const layers = [
-    { texture: "/textures/galaxy_core.jpg", speed: 0.0005, opacity: 0.5 },
-    { texture: "/textures/galaxy_core.jpg", speed: -0.0003, opacity: 0.4 },
-    { texture: "/textures/galaxy_core.jpg", speed: 0.0007, opacity: 0.3 },
+    { texture: "/textures/galaxy_core.jpg", speed: 0.0005, baseOpacity: 0.5 },
+    { texture: "/textures/galaxy_core.jpg", speed: -0.0003, baseOpacity: 0.4 },
+    { texture: "/textures/galaxy_core.jpg", speed: 0.0007, baseOpacity: 0.3 },
   ];
 
   const refs = useRef([]);
@@ -16,8 +20,8 @@ export default function GalaxyCore({ position = [0, 0, -10], scale = 40 }) {
       if (ref) {
         ref.rotation.z += layers[i].speed;
         const pulse =
-          Math.sin(Date.now() * 0.001 + i) * 0.2 + layers[i].opacity;
-        ref.material.opacity = pulse;
+          Math.sin(Date.now() * 0.001 + i) * 0.2 + layers[i].baseOpacity;
+        ref.material.opacity = visible ? pulse : 0;
       }
     });
   });
@@ -37,7 +41,7 @@ export default function GalaxyCore({ position = [0, 0, -10], scale = 40 }) {
             <meshBasicMaterial
               map={texture}
               transparent
-              opacity={layer.opacity}
+              opacity={0}
               blending={THREE.AdditiveBlending}
               depthWrite={false}
               side={THREE.DoubleSide}

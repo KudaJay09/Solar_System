@@ -110,6 +110,7 @@ function App() {
       wiki: "https://en.wikipedia.org/wiki/Moon",
     },
   ];
+  const [showGalaxy, setShowGalaxy] = useState(false);
   const controlsRef = useRef();
 
   const [selectedPlanet, setSelectedPlanet] = useState(null);
@@ -122,29 +123,32 @@ function App() {
           {/* <Stars /> */}
           <StarBackground />
           <OrbitControls ref={controlsRef} />
-          <GalaxyCore position={[0, 0, -10]} scale={40} />
-          {/* Sun and planets will go here */}
-          {planets.map((planet, index) => (
-            <>
-              {planet.name === "Sun" ? (
-                <Sun
-                  key={index}
-                  textureUrl={planet.textureUrl}
-                  radius={planet.radius}
-                />
-              ) : (
-                <>
-                  <Planet
-                    key={index}
-                    {...planet}
-                    setSelectedPlanet={setSelectedPlanet}
-                  />
-                  <OrbitRing distance={planet.distance} />
-                </>
-              )}
-              <CameraController target={selectedPlanet} />
-            </>
-          ))}
+          {/* Galaxy container: a single group that contains the GalaxyCore and all planet objects.
+              This makes the GalaxyCore visually act as a container that surrounds the planets.
+              GalaxyCore visibility is controlled by `showGalaxy`. */}
+          <group name="galaxy-container">
+            {/* <GalaxyCore position={[0, 0, 0]} scale={220} visible={showGalaxy} /> */}
+
+            {/* Sun and planets will go here */}
+            {planets.map((planet, index) => (
+              <group key={index}>
+                {planet.name === "Sun" ? (
+                  <Sun textureUrl={planet.textureUrl} radius={planet.radius} />
+                ) : (
+                  <>
+                    <Planet {...planet} setSelectedPlanet={setSelectedPlanet} />
+                    <OrbitRing distance={planet.distance} />
+                  </>
+                )}
+              </group>
+            ))}
+          </group>
+
+          {/* Single CameraController instance to update camera-follow and galaxy visibility */}
+          <CameraController
+            target={selectedPlanet}
+            setShowGalaxy={setShowGalaxy}
+          />
         </Canvas>
       </div>
 
@@ -226,16 +230,20 @@ function App() {
   );
 }
 
-function CameraController({ target }) {
+function CameraController({ target, setShowGalaxy }) {
   const { camera } = useThree();
   const ref = useRef();
   useFrame(() => {
-    if (target?.position) {
-      camera.position.lerp(
-        target.position.clone().add(new THREE.Vector3(0, 2, 5)),
-        0.05
-      );
-      camera.lookAt(target.position);
+    if (target?.ref?.current) {
+      const offset = new THREE.Vector3(0, 2, 5);
+      const targetPos = target.ref.current.position.clone().add(offset);
+      camera.position.lerp(targetPos, 0.05);
+      camera.lookAt(target.ref.current.position);
+    }
+
+    const distance = camera.position.length();
+    if (setShowGalaxy) {
+      setShowGalaxy(distance > 700);
     }
   });
   return null;
