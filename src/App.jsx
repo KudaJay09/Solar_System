@@ -13,101 +13,108 @@ import StarBackground from "./components/StarBackground";
 
 function App() {
   const planets = [
+    // Sun - at the center
     {
-      name: "Mars",
-      textureUrl: "/textures/2k_mars.jpg",
-      radius: 1,
-      distance: 10,
-      speed: 0.5,
-      mass: "6.42 × 10²³ kg",
-      orbitPeriod: "687 days",
-      wiki: "https://en.wikipedia.org/wiki/Mars",
+      name: "Sun",
+      textureUrl: "/textures/8k_sun.jpg",
+      radius: 2.3,
+      distance: 0,
+      speed: 0,
+      mass: "1.989 × 10³⁰ kg",
+      orbitPeriod: "N/A",
+      wiki: "https://en.wikipedia.org/wiki/Sun",
     },
+    // Inner planets
     {
       name: "Mercury",
       textureUrl: "/textures/8k_mercury.jpg",
-      radius: 0.8,
-      distance: 14,
+      radius: 0.38,
+      distance: 8,
       speed: 0.3,
       mass: "3.30 × 10²³ kg",
-      orbitPeriod: "88 days",
+      orbitPeriod: "88 Earth days",
       wiki: "https://en.wikipedia.org/wiki/Mercury_(planet)",
     },
     {
       name: "Venus",
       textureUrl: "/textures/8k_venus_surface.jpg",
-      radius: 1.2,
-      distance: 18,
-      speed: 0.4,
+      radius: 0.95,
+      distance: 12,
+      speed: 0.25,
       mass: "4.87 × 10²⁴ kg",
-      orbitPeriod: "224.7 days",
+      orbitPeriod: "225 Earth days",
       wiki: "https://en.wikipedia.org/wiki/Venus",
     },
     {
+      name: "Earth",
+      textureUrl: "/textures/8k_earth_daymap.jpg",
+      radius: 1.0,
+      distance: 16,
+      speed: 0.2,
+      mass: "5.97 × 10²⁴ kg",
+      orbitPeriod: "365.25 days",
+      wiki: "https://en.wikipedia.org/wiki/Earth",
+    },
+    {
+      name: "Moon",
+      textureUrl: "/textures/8k_moon.jpg",
+      radius: 0.27,
+      distance: 17.5,
+      speed: 0.22,
+      mass: "7.35 × 10²² kg",
+      orbitPeriod: "27.3 days (around Earth)",
+      wiki: "https://en.wikipedia.org/wiki/Moon",
+    },
+    {
+      name: "Mars",
+      textureUrl: "/textures/2k_mars.jpg",
+      radius: 0.53,
+      distance: 22,
+      speed: 0.15,
+      mass: "6.42 × 10²³ kg",
+      orbitPeriod: "687 Earth days",
+      wiki: "https://en.wikipedia.org/wiki/Mars",
+    },
+    // Outer planets
+    {
       name: "Jupiter",
       textureUrl: "/textures/8k_jupiter.jpg",
-      radius: 2,
-      distance: 25,
-      speed: 0.2,
+      radius: 2.5,
+      distance: 35,
+      speed: 0.1,
       mass: "1.90 × 10²⁷ kg",
-      orbitPeriod: "11.86 years",
+      orbitPeriod: "11.86 Earth years",
       wiki: "https://en.wikipedia.org/wiki/Jupiter",
     },
     {
       name: "Saturn",
       textureUrl: "/textures/8k_saturn.jpg",
-      radius: 1.8,
-      distance: 30,
-      speed: 0.15,
+      radius: 2.1,
+      distance: 50,
+      speed: 0.08,
       mass: "5.68 × 10²⁶ kg",
-      orbitPeriod: "29.45 years",
+      orbitPeriod: "29.46 Earth years",
       wiki: "https://en.wikipedia.org/wiki/Saturn",
     },
     {
       name: "Uranus",
       textureUrl: "/textures/2k_uranus.jpg",
-      radius: 1.5,
-      distance: 35,
-      speed: 0.1,
+      radius: 1.6,
+      distance: 70,
+      speed: 0.06,
       mass: "8.68 × 10²⁵ kg",
-      orbitPeriod: "84.02 years",
+      orbitPeriod: "84.01 Earth years",
       wiki: "https://en.wikipedia.org/wiki/Uranus",
     },
     {
       name: "Neptune",
       textureUrl: "/textures/2k_neptune.jpg",
       radius: 1.5,
-      distance: 40,
-      speed: 0.08,
+      distance: 90,
+      speed: 0.05,
       mass: "1.02 × 10²⁶ kg",
-      orbitPeriod: "164.8 years",
+      orbitPeriod: "164.8 Earth years",
       wiki: "https://en.wikipedia.org/wiki/Neptune",
-    },
-    {
-      name: "Earth",
-      textureUrl: "/textures/8k_earth_daymap.jpg",
-      radius: 1,
-      distance: 12,
-      speed: 0.45,
-      mass: "5.97 × 10²⁴ kg",
-      orbitPeriod: "365.25 days",
-      wiki: "https://en.wikipedia.org/wiki/Earth",
-    },
-    {
-      name: "Sun",
-      textureUrl: "/textures/8k_sun.jpg",
-      radius: 3,
-      distance: 0,
-      speed: 0,
-    },
-    {
-      name: "Moon",
-      textureUrl: "/textures/8k_moon.jpg",
-      radius: 0.27,
-      distance: 13,
-      speed: 0.6,
-      mass: "7.35 × 10²² kg",
-      orbitPeriod: "27.3 days",
       wiki: "https://en.wikipedia.org/wiki/Moon",
     },
   ];
@@ -203,7 +210,7 @@ function App() {
   }, []);
   return (
     <>
-      <div className="hero">
+      <div className="h-screen flex justify-center items-center relative">
         {!assetsLoaded && <Loading message={loadingMessage} />}
 
         <React.Suspense
@@ -293,20 +300,29 @@ function App() {
             }}
           />
           <div
+            className="absolute top-3 right-3 bg-black/80 text-white p-3 rounded-lg max-w-60 text-sm shadow-lg"
             style={{
               position: "absolute",
               top: "12px",
               right: "12px",
-              background: "rgba(0,0,0,0.8)",
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
               color: "white",
               padding: "12px",
               borderRadius: "8px",
               maxWidth: "240px",
-              fontSize: "0.9rem",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
+              fontSize: "0.875rem",
+              boxShadow:
+                "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
             }}
           >
-            <h3 style={{ marginBottom: "8px", fontSize: "1.1rem" }}>
+            <h3
+              className="mb-2 text-lg"
+              style={{
+                marginBottom: "8px",
+                fontSize: "1.125rem",
+                fontWeight: "600",
+              }}
+            >
               {selectedPlanet.name}
             </h3>
             <p>
@@ -332,15 +348,21 @@ function App() {
           </div>
 
           <button
+            className="absolute top-4 left-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg shadow-lg border border-red-500 transition-all duration-200 hover:scale-105 z-10"
             style={{
               position: "absolute",
-              top: "6px",
-              left: "8px",
+              top: "16px",
+              left: "16px",
+              backgroundColor: "#dc2626",
               color: "white",
               fontWeight: "600",
-              borderRadius: "6px",
-              background: "red",
-              padding: "4px 6px",
+              padding: "8px 16px",
+              borderRadius: "8px",
+              border: "1px solid #ef4444",
+              boxShadow:
+                "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+              zIndex: 10,
+              cursor: "pointer",
             }}
             onClick={() => {
               const audio = new Audio("/sounds/zoom-sound.mp3");

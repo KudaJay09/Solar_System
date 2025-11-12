@@ -1,6 +1,6 @@
 export default function MiniMap({ planets, selected, onSelect }) {
   return (
-    <div className="minimap">
+    <div className="absolute bottom-3 left-3 h-16 w-full max-w-96 bg-black/60 rounded-lg overflow-x-auto whitespace-nowrap p-2 flex items-center gap-3">
       {planets.map((planet, i) => {
         const x = planet.distance * 4;
         const isActive = planet.name === selected;
@@ -8,7 +8,11 @@ export default function MiniMap({ planets, selected, onSelect }) {
         return (
           <div
             key={i}
-            className={`minimap-dot ${isActive ? "active" : ""}`}
+            className={`w-6 h-6 rounded-full cursor-pointer transition-transform duration-200 bg-gray-800 border border-white hover:-translate-y-1/2 hover:scale-130 ${
+              isActive
+                ? "shadow-[0_0_12px_#00ffff] animate-[pulse_1.2s_infinite_ease-in-out]"
+                : ""
+            }`}
             style={{
               left: `${x}px`,
               top: "50%",
@@ -16,7 +20,6 @@ export default function MiniMap({ planets, selected, onSelect }) {
               backgroundImage: `url(${planet.textureUrl})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
-              border: "1px solid white",
             }}
             onClick={() => onSelect(planet)}
             title={planet.name}
