@@ -117,6 +117,9 @@ function App() {
   const [selectedPlanet, setSelectedPlanet] = useState(null);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [canvasKey, setCanvasKey] = useState(0);
+  const [loadingMessage, setLoadingMessage] = useState(
+    "Preparing the solar system..."
+  );
 
   useEffect(() => {
     // Build a unique list of texture urls to preload (planets + background)
@@ -139,23 +142,57 @@ function App() {
     };
 
     const loader = new THREE.TextureLoader(manager);
+    let loadedCount = 0;
+    const totalCount = urls.length;
+
+    const getLoadingMessage = (url) => {
+      if (url.includes("8k_stars_milky_way"))
+        return "Loading star background...";
+      if (url.includes("8k_sun")) return "Loading Sun texture...";
+      if (url.includes("8k_earth")) return "Loading Earth texture...";
+      if (url.includes("8k_mars") || url.includes("2k_mars"))
+        return "Loading Mars texture...";
+      if (url.includes("8k_mercury")) return "Loading Mercury texture...";
+      if (url.includes("8k_venus")) return "Loading Venus texture...";
+      if (url.includes("8k_jupiter")) return "Loading Jupiter texture...";
+      if (url.includes("8k_saturn")) return "Loading Saturn texture...";
+      if (url.includes("2k_uranus")) return "Loading Uranus texture...";
+      if (url.includes("2k_neptune")) return "Loading Neptune texture...";
+      if (url.includes("8k_moon")) return "Loading Moon texture...";
+      return `Loading texture ${loadedCount + 1} of ${totalCount}...`;
+    };
 
     Promise.all(
       urls.map(
         (u) =>
           new Promise((resolve) => {
+            if (!mounted) return resolve(null);
+            setLoadingMessage(getLoadingMessage(u));
+
             loader.load(
               u,
-              (tex) => resolve(tex),
+              (tex) => {
+                loadedCount++;
+                if (mounted && loadedCount < totalCount) {
+                  setLoadingMessage(
+                    `Loading textures... (${loadedCount}/${totalCount})`
+                  );
+                }
+                resolve(tex);
+              },
               undefined,
-              () => resolve(null)
+              () => {
+                loadedCount++;
+                resolve(null);
+              }
             );
           })
       )
     ).then(() => {
       if (!mounted) return;
+      setLoadingMessage("Initializing solar system...");
       // Allow a tiny timeout so the spinner isn't a flash for very fast loads
-      setTimeout(() => setAssetsLoaded(true), 150);
+      setTimeout(() => setAssetsLoaded(true), 300);
     });
 
     return () => {
@@ -167,9 +204,11 @@ function App() {
   return (
     <>
       <div className="hero">
-        {!assetsLoaded && <Loading message={"Preparing the galaxy..."} />}
+        {!assetsLoaded && <Loading message={loadingMessage} />}
 
-        <React.Suspense fallback={<Loading message={"Loading assets..."} />}>
+        <React.Suspense
+          fallback={<Loading message={"Loading 3D components..."} />}
+        >
           <Canvas
             key={canvasKey}
             camera={{ position: [0, 0, 50], fov: 60 }}
