@@ -26,29 +26,9 @@ export default function Planet({
 
   const [hovered, setHovered] = useState(false);
   const texture = useLoader(TextureLoader, textureUrl);
-  const pausedTimeRef = useRef(0);
-  const pauseStartRef = useRef(0);
 
   useFrame(({ clock }) => {
-    if (!PlanetRef.current) return;
-
-    if (hovered) {
-      // When hovered, pause the animation by storing when we paused
-      if (pauseStartRef.current === 0) {
-        pauseStartRef.current = clock.getElapsedTime();
-      }
-    } else {
-      // When not hovered, continue animation accounting for paused time
-      if (pauseStartRef.current > 0) {
-        pausedTimeRef.current += clock.getElapsedTime() - pauseStartRef.current;
-        pauseStartRef.current = 0;
-      }
-    }
-
-    // Calculate animation time, subtracting any paused time
-    const animationTime = clock.getElapsedTime() - pausedTimeRef.current;
-    const t = animationTime * speed;
-
+    const t = clock.getElapsedTime() * speed;
     PlanetRef.current.position.x = Math.sin(t) * distance;
     PlanetRef.current.position.z = Math.cos(t) * distance;
   });
