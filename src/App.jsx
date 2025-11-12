@@ -1,10 +1,12 @@
 import "./index.css";
 import Planet from "./components/Planet";
+import Loading from "./components/Loading";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import OrbitRing from "./components/OrbitRing";
 import { OrbitControls, Stars } from "@react-three/drei";
+import { useRef, useState, useEffect } from "react";
+import * as React from "react";
 import * as THREE from "three";
-import { useRef, useState } from "react";
 import Sun from "./components/Sun";
 import MiniMap from "./components/MiniMap";
 import StarBackground from "./components/StarBackground";
@@ -113,42 +115,128 @@ function App() {
   const controlsRef = useRef();
 
   const [selectedPlanet, setSelectedPlanet] = useState(null);
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  const [canvasKey, setCanvasKey] = useState(0);
+
+  useEffect(() => {
+    // Build a unique list of texture urls to preload (planets + background)
+    const urls = Array.from(
+      new Set(
+        planets
+          .map((p) => p.textureUrl)
+          .concat(["/textures/8k_stars_milky_way.jpg"])
+      )
+    );
+
+    let mounted = true;
+
+    // Enable three.js caching for textures to avoid duplicate uploads
+    if (THREE.Cache) THREE.Cache.enabled = true;
+
+    const manager = new THREE.LoadingManager();
+    manager.onError = (url) => {
+      console.warn("Failed to load", url);
+    };
+
+    const loader = new THREE.TextureLoader(manager);
+
+    Promise.all(
+      urls.map(
+        (u) =>
+          new Promise((resolve) => {
+            loader.load(
+              u,
+              (tex) => resolve(tex),
+              undefined,
+              () => resolve(null)
+            );
+          })
+      )
+    ).then(() => {
+      if (!mounted) return;
+      // Allow a tiny timeout so the spinner isn't a flash for very fast loads
+      setTimeout(() => setAssetsLoaded(true), 150);
+    });
+
+    return () => {
+      mounted = false;
+      // clear manager handlers
+      manager.onError = null;
+    };
+  }, []);
   return (
     <>
       <div className="hero">
-        <Canvas camera={{ position: [0, 0, 50], fov: 60 }}>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[0, 0, 0]} intensity={2} />
-          {/* <Stars /> */}
-          <StarBackground />
-          <OrbitControls ref={controlsRef} />
-          {/* Galaxy container: a single group that contains the GalaxyCore and all planet objects.
+        {!assetsLoaded && <Loading message={"Preparing the galaxy..."} />}
+
+        <React.Suspense fallback={<Loading message={"Loading assets..."} />}>
+          <Canvas
+            key={canvasKey}
+            camera={{ position: [0, 0, 50], fov: 60 }}
+            onCreated={({ gl }) => {
+              // Attach handlers directly to the canvas to catch context lost/restored
+              const canvas = gl.domElement;
+              function handleLost(e) {
+                e.preventDefault();
+                console.warn("WebGL context lost - seamlessly restarting");
+                // Automatically remount Canvas without showing error UI
+                setTimeout(() => setCanvasKey((k) => k + 1), 100);
+              }
+              function handleRestore() {
+                console.info("WebGL context restored");
+                // context restored, no action needed as we already remounted
+              }
+              canvas.addEventListener("webglcontextlost", handleLost, false);
+              canvas.addEventListener(
+                "webglcontextrestored",
+                handleRestore,
+                false
+              );
+
+              // store references on the gl object so we can remove them if needed
+              gl.__lostHandler = handleLost;
+              gl.__restoreHandler = handleRestore;
+            }}
+          >
+            <ambientLight intensity={0.5} />
+            <pointLight position={[0, 0, 0]} intensity={2} />
+            {/* <Stars /> */}
+            <StarBackground />
+            <OrbitControls ref={controlsRef} />
+            {/* Galaxy container: a single group that contains the GalaxyCore and all planet objects.
               This makes the GalaxyCore visually act as a container that surrounds the planets.
               GalaxyCore visibility is controlled by `showGalaxy`. */}
-          <group name="galaxy-container">
-            {/* <GalaxyCore position={[0, 0, 0]} scale={220} visible={showGalaxy} /> */}
+            <group name="galaxy-container">
+              {/* <GalaxyCore position={[0, 0, 0]} scale={220} visible={showGalaxy} /> */}
 
-            {/* Sun and planets will go here */}
-            {planets.map((planet, index) => (
-              <group key={index}>
-                {planet.name === "Sun" ? (
-                  <Sun textureUrl={planet.textureUrl} radius={planet.radius} />
-                ) : (
-                  <>
-                    <Planet {...planet} setSelectedPlanet={setSelectedPlanet} />
-                    <OrbitRing distance={planet.distance} />
-                  </>
-                )}
-              </group>
-            ))}
-          </group>
+              {/* Sun and planets will go here */}
+              {planets.map((planet, index) => (
+                <group key={index}>
+                  {planet.name === "Sun" ? (
+                    <Sun
+                      textureUrl={planet.textureUrl}
+                      radius={planet.radius}
+                    />
+                  ) : (
+                    <>
+                      <Planet
+                        {...planet}
+                        setSelectedPlanet={setSelectedPlanet}
+                      />
+                      <OrbitRing distance={planet.distance} />
+                    </>
+                  )}
+                </group>
+              ))}
+            </group>
 
-          {/* Single CameraController instance to update camera-follow and galaxy visibility */}
-          <CameraController
-            target={selectedPlanet}
-            setShowGalaxy={setShowGalaxy}
-          />
-        </Canvas>
+            {/* Single CameraController instance to update camera-follow and galaxy visibility */}
+            <CameraController
+              target={selectedPlanet}
+              setShowGalaxy={setShowGalaxy}
+            />
+          </Canvas>
+        </React.Suspense>
       </div>
 
       {selectedPlanet && (
